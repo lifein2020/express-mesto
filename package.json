@@ -4,7 +4,7 @@
   "description": "## Директории",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "node app.js",
     "dev": "nodemon app.js",
     "lint": "npx eslint ."
   },
@@ -13,20 +13,20 @@
     "url": "git+https://github.com/lifein2020/express-mesto.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Svetlana Zhivtsova",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/lifein2020/express-mesto/issues"
   },
   "homepage": "https://github.com/lifein2020/express-mesto#readme",
   "dependencies": {
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.25.2",
     "express": "^4.17.1",
     "mongoose": "^6.0.11"
   },
   "devDependencies": {
     "eslint": "^8.0.1",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.25.2",
     "nodemon": "^2.0.13"
   }
 }
