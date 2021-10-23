@@ -9,9 +9,8 @@ const getUsers = (req, res) => {
     .then((users) => {
       res.status(200).send({ data: users });
     })
-    .catch((err) => {
-      console.log(err);
-      return res.status(500).send({ message: 'Произошла ошибка' });
+    .catch(() => {
+      res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -43,8 +42,8 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body; // из объекта запроса имя, описание пользователя, аватар
   return User.create({ name, about, avatar }) // создадим документ на основе пришедших данных
     .then((newUser) => {
-      console.log('Пользователь создан');
-      return res.status(200).send({ data: newUser });
+      //  console.log('Пользователь создан');
+      res.status(200).send({ data: newUser });
     })
     .catch((err) => {
       const ERROR_CODE = 400;
@@ -77,7 +76,7 @@ const updateUser = (req, res) => {
       /* вместо if (!user) {
         return res.status(404).send({ message: 'Ресурс не найден' });
       } */
-      console.log('Данные пользователя обновлены');
+      //  console.log('Данные пользователя обновлены');
       res.status(200).send({ data: user });
     })
     .catch((err) => {
@@ -95,7 +94,6 @@ const updateUser = (req, res) => {
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
-    //  req.params.userId, //req.params.me
     req.user._id,
     { avatar },
     {
@@ -107,8 +105,8 @@ const updateAvatar = (req, res) => {
       /*  if (!user) {
         return res.status(404).send({ message: 'Ресурс не найден' });
       } */
-      console.log('Аватар пользователя обновлен');
-      return res.status(200).send({ data: user });
+      //  console.log('Аватар пользователя обновлен');
+      res.status(200).send({ data: user });
     })
     .orFail(() => {
       const err = new Error('Ресурс не найден');
@@ -118,7 +116,6 @@ const updateAvatar = (req, res) => {
     .catch((err) => {
       const ERROR_CODE = 400;
       if (err.name === 'ValidationError') {
-        console.log('Error: ', err);
         return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные', err: err.name });
       }
       return res.status(500).send({ message: 'Произошла ошибка', err: err.name });

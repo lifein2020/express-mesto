@@ -7,20 +7,19 @@ module.exports.getCards = (req, res) => {
     .then((cards) => {
       res.status(200).send({ data: cards });
     })
-    .catch((err) => {
-      console.log(err);
+    .catch(() => {
       res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
 //  создаёт карточку
 module.exports.createCard = (req, res) => {
-  console.log(req.user._id);
+  //  console.log(req.user._id);
   const ownerId = req.user._id;
   const { name, link } = req.body; // получим из объекта запроса имя и описание пользователя
   return Card.create({ name, link, owner: ownerId }) // создадим документ на основе пришедших данных
     .then((card) => {
-      console.log('Карточка создана');
+      //  console.log('Карточка создана');
       res.status(200).send({ data: card });
     })
     .catch((err) => {
@@ -65,7 +64,7 @@ module.exports.deleteCard = (req, res) => {
 //  поставить лайк карточке
 module.exports.likeCard = (req, res) => {
   const { cardId } = req.params;
-  console.log('Set like to card. ', ' User id -> ', req.user._id, ' Card id -> ', cardId);
+  //  console.log('Set like to card. ', ' User id -> ', req.user._id, ' Card id -> ', cardId);
   return Card.findByIdAndUpdate(
     { _id: cardId }, //  req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -84,8 +83,8 @@ module.exports.likeCard = (req, res) => {
       throw err;
     })
     .then((card) => {
-      console.log('Лайк поставлен');
-      return res.status(200).send({ card });
+      //  console.log('Лайк поставлен');
+      res.status(200).send({ card });
     })
     .catch((err) => {
       if (err.statusCode === 404) {
@@ -101,7 +100,7 @@ module.exports.likeCard = (req, res) => {
 //  убрать лайк с карточки
 module.exports.dislikeCard = (req, res) => {
   const { cardId } = req.params;
-  console.log('Delete like of card. ', ' User id -> ', req.user._id, ' Card id -> ', cardId);
+  //  console.log('Delete like of card. ', ' User id -> ', req.user._id, ' Card id -> ', cardId);
   return Card.findByIdAndUpdate(
     cardId, //  req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
@@ -120,16 +119,14 @@ module.exports.dislikeCard = (req, res) => {
       throw err;
     })
     .then((card) => {
-      console.log('Лайк удален');
+      //  console.log('Лайк удален');
       res.status(200).send({ card });
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        console.log('404 ошибка!');
         return res.status(404).send({ message: err.message });
       }
       if (err.name === 'CastError') {
-        console.log('400 ошибка!');
         return res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
