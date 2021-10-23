@@ -101,6 +101,11 @@ const updateAvatar = (req, res) => {
       runValidators: true,
     },
   )
+    .orFail(() => {
+      const err = new Error('Ресурс не найден');
+      err.statusCode = 404;
+      throw err;
+    })
     .then((user) => {
       /*  if (!user) {
         return res.status(404).send({ message: 'Ресурс не найден' });
@@ -108,17 +113,14 @@ const updateAvatar = (req, res) => {
       //  console.log('Аватар пользователя обновлен');
       res.status(200).send({ data: user });
     })
-    .orFail(() => {
-      const err = new Error('Ресурс не найден');
-      err.statusCode = 404;
-      throw err;
-    })
     .catch((err) => {
-      const ERROR_CODE = 400;
-      if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные', err: err.name });
+      if (err.statusCode === 404) {
+        return res.status(404).send({ message: err.message });
       }
-      return res.status(500).send({ message: 'Произошла ошибка', err: err.name });
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
