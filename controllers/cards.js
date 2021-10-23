@@ -41,7 +41,7 @@ module.exports.deleteCard = (req, res) => {
         console.log('Карточка удалена');
         return res.status(200).send({ card });
       }
-      return res.status(404).send({ message: 'Карточка с указанным id не найдена' });
+      return res.status(404).send({ message: 'Ресурс не найден' });
     })  либо:  */
     .orFail(() => {
       const err = new Error('Ресурс не найден');
@@ -73,7 +73,7 @@ module.exports.likeCard = (req, res) => {
   )
     /*  .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Переданные данные отсутствуют' })
+        return res.status(404).send({ message: 'Ресурс не найден' })
       }
       console.log('Лайк поставлен');
       return res.status(200).send({ card })
@@ -109,7 +109,7 @@ module.exports.dislikeCard = (req, res) => {
   )
     /*  .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Карточка с указанным id не найдена' });
+        return res.status(404).send({ message: 'Ресурс не найден' });
       }
       console.log('Лайк удален');
       return res.status(200).send({ card });

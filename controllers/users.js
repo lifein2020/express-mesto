@@ -75,7 +75,7 @@ const updateUser = (req, res) => {
     })
     .then((user) => {
       /* вместо if (!user) {
-        return res.status(404).send({ message: 'Переданные данные отсутствуют' });
+        return res.status(404).send({ message: 'Ресурс не найден' });
       } */
       console.log('Данные пользователя обновлены');
       res.status(200).send({ data: user });
@@ -105,7 +105,7 @@ const updateAvatar = (req, res) => {
   )
     .then((user) => {
       /*  if (!user) {
-        return res.status(404).send({ message: 'Переданные данные отсутствуют' });
+        return res.status(404).send({ message: 'Ресурс не найден' });
       } */
       console.log('Аватар пользователя обновлен');
       return res.status(200).send({ data: user });
