@@ -6,7 +6,7 @@ const {
   createUser,
   updateUser,
   updateAvatar,
-} = require('../controllers/users.js');
+} = require('../controllers/users');
 
 //  возвращает всех пользователей
 router.get('/users', getUsers);

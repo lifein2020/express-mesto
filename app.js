@@ -16,11 +16,10 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   // useCreateIndex: true,
   // useFindAndModify: false
-}, /*  , err => {
+}) /*  , err => {
   if(err) throw err;
   console.log('Connected to MongoDb!')
-} */
-)
+}) */
   .then(() => { console.log('Connected to MongoDb!'); })
   .catch((err) => {
     console.log('No connection. Error:', err);
@@ -44,6 +43,14 @@ app.use((req, res, next) => {
 //  подключаем роуты
 app.use('/', userRouter); //  localhost:PORT/ + userRouter
 app.use('/', cardRouter); //  localhost:PORT/ + cardRouter
+app.use((req, res) => {
+  res.status(404).send({ message: 'Ресурс не найден' });
+});
+// либо
+//  The 404 Route (ALWAYS Keep this as the last route)
+/*  app.get('*', (req, res) => {
+  res.status(404).send('Ресурс не найден');
+}); */
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

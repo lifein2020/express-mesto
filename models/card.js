@@ -12,8 +12,8 @@ const cardSchema = new mongoose.Schema({
     required: true,
   },
   owner: {
-    type: mongoose.Schema.Types.ObjectId, //ссылка на автора объявления
-    ref: 'user', //имя модели, на которую ссылаемся
+    type: mongoose.Schema.Types.ObjectId, //  ссылка на автора объявления
+    ref: 'user', // имя модели, на которую ссылаемся
     required: true,
   },
   likes: {
