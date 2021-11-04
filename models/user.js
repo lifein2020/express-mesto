@@ -9,15 +9,15 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: false,
-    minlength: [2, 'Must be at least 2, got {VALUE}'], // минимальная длина имени — 2 символа
-    maxlength: 30, // а максимальная — 30 символов
+    minLength: 2, // [2, 'Must be at least 2, got {VALUE}'], // минимальная длина имени — 2 символа
+    maxLength: 30, // а максимальная — 30 символов
     default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,
     required: false,
-    minlength: 2,
-    maxlength: 30,
+    minLength: 2,
+    maxLength: 30,
     default: 'Исследователь',
   },
   avatar: {
@@ -25,11 +25,11 @@ const userSchema = new mongoose.Schema({
     required: false,
     default: url,
     validate: {
-      validator: function(v) {
-        const avatarUrl = /http(s)?:(\/){2}(w{3}\.)?.+\.ru.*(#)?/;
+      validator: function validateAvatar(v) {
+        const avatarUrl = /http(s)?:\/\/(www.)?[\w\-.]*\.\w{1,}\/?[\w\-._~:\/?#\[\]@!$&'()*+,;=]*#?/g; // /http(s)?:(\/){2}(w{3}\.)?.+\.ru.*(#)?/;
         return avatarUrl.test(v);
       },
-      message: props => `${props.value} is not a valid link!`,
+      message: (props) => `${props.value} is not a valid link!`,
     },
   },
   email: {
@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // Код проверки почты и пароля является частью схемы User
-userSchema.statics.findUserByCredential = function authenticateUser(email, password) {
+userSchema.statics.findUserByCredentials = function authenticateUser(email, password) {
   // попытаемся найти пользователя по почте
   return this.findOne({ email }) // this — это модель User
     .then((user) => {
