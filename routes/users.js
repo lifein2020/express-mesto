@@ -1,6 +1,16 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 
+const validator = require('validator');
+// валидация ссылок на аватар
+const method = (value) => {
+  let result = validator.isURL(value);
+  if (result) {
+    return value;
+  }
+  throw new Error('URL validation err');
+};
+
 const {
   getUsers,
   getUserProfile,
@@ -18,7 +28,7 @@ router.get('/users', getUsers);
 //  возвращает пользователя по _id
 router.get('/users/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().alphanum().length(24),
+    userId: Joi.string().hex().length(24).required(),
   }),
 }), getUserProfile);
 
@@ -28,7 +38,7 @@ router.get('/users/:userId', celebrate({
 // возвращает информацию о текущем пользователе
 router.get('/users/me', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required(),
+    email: Joi.string().email().required(),
   }),
 }), getUserMe);
 
@@ -43,7 +53,7 @@ router.patch('/users/me', celebrate({
 //  обновляет аватар
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required(),
+    avatar: Joi.string().required().custom(method),
   }),
 }), updateAvatar); //  :userId
 

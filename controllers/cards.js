@@ -2,19 +2,19 @@
 const Card = require('../models/card');
 
 //  возвращает все карточки
-module.exports.getCards = (req, res, next) => {
+module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => {
       res.status(200).send({ data: cards });
     })
-    .catch((err) => {
-      // res.status(500).send({ message: 'Произошла ошибка' });
-      next(err);
+    .catch(() => {
+      res.status(500).send({ message: 'Произошла ошибка' });
+      // next(err);
     });
 };
 
 //  создаёт карточку
-module.exports.createCard = (req, res, next) => {
+module.exports.createCard = (req, res) => {
   //  console.log(req.user._id);
   const ownerId = req.user._id;
   const { name, link } = req.body; // получим из объекта запроса имя и описание пользователя
@@ -25,18 +25,18 @@ module.exports.createCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        // return res.status(400).send({ message: 'Переданы некорректные данные' });
-        const badRequest = new Error('Переданы некорректные данные');
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        /* const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
-        next(badRequest);
+        next(badRequest); */
       }
-      // return res.status(500).send({ message: 'Произошла ошибка', err: err.name });
-      next(err);
+      return res.status(500).send({ message: 'Произошла ошибка', err: err.name });
+      // next(err);
     });
 };
 
 //  удаляет карточку по идентификатору
-module.exports.deleteCard = (req, res, next) => {
+module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
   return Card.findByIdAndRemove(cardId)
     /*  .then((card) => {
@@ -56,23 +56,23 @@ module.exports.deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        // return res.status(404).send({ message: err.message });
-        // const notFound = new Error({ message: err.message });
-        next(err);
+        return res.status(404).send({ message: err.message });
+        /* const notFound = new Error({ message: err.message });
+        next(err); */
       }
       if (err.name === 'CastError') {
-        // return res.status(400).send({ message: 'Переданы некорректные данные' });
-        const badRequest = new Error('Переданы некорректные данные');
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        /* const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
-        next(badRequest);
+        next(badRequest); */
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
-      next(err);
+      return res.status(500).send({ message: 'Произошла ошибка' });
+      // next(err);
     });
 };
 
 //  поставить лайк карточке
-module.exports.likeCard = (req, res, next) => {
+module.exports.likeCard = (req, res) => {
   const { cardId } = req.params;
   //  console.log('Set like to card. ', ' User id -> ', req.user._id, ' Card id -> ', cardId);
   return Card.findByIdAndUpdate(
@@ -98,22 +98,22 @@ module.exports.likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        // res.status(404).send({ message: err.message });
-        next(err);
+        res.status(404).send({ message: err.message });
+        // next(err);
       }
       if (err.name === 'CastError') {
-        // res.status(400).send({ message: 'Переданы некорректные данные' });
-        const badRequest = new Error('Переданы некорректные данные');
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+        /* const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
-        next(badRequest);
+        next(badRequest); */
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
-      next(err);
+      return res.status(500).send({ message: 'Произошла ошибка' });
+      // next(err);
     });
 };
 
 //  убрать лайк с карточки
-module.exports.dislikeCard = (req, res, next) => {
+module.exports.dislikeCard = (req, res) => {
   const { cardId } = req.params;
   //  console.log('Delete like of card. ', ' User id -> ', req.user._id, ' Card id -> ', cardId);
   return Card.findByIdAndUpdate(
@@ -134,21 +134,21 @@ module.exports.dislikeCard = (req, res, next) => {
       throw notFound;
     })
     .then((card) => {
-      //  console.log('Лайк удален');
+      // console.log('Лайк удален');
       res.status(200).send({ card });
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        // return res.status(404).send({ message: err.message });
-        next(err);
+        return res.status(404).send({ message: err.message });
+        // next(err);
       }
       if (err.name === 'CastError') {
-        // return res.status(400).send({ message: 'Переданы некорректные данные' });
-        const badRequest = new Error('Переданы некорректные данные');
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        /* const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
-        next(badRequest);
+        next(badRequest); */
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
-      next(err);
+      return res.status(500).send({ message: 'Произошла ошибка' });
+      // next(err);
     });
 };

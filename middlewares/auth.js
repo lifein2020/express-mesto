@@ -4,6 +4,9 @@ const JWT_SECRET = 'the-world-is-not-enought'; // secret key for token
 
 const handleAuthError = (res) => {
   res.status(401).send({ message: 'Необходима авторизация' });
+  /* const loginError = new Error('Передан неверный логин или пароль');
+  loginError.statusCode = 401;
+  throw (loginError); */
 };
 
 const extractBearerToken = (header) => {
@@ -27,12 +30,13 @@ module.exports = (req, res, next) => {
     // верифицируем токен
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    // return res.status(401).send({ message: 'Необходима авторизация' });
+    return res.status(401).send({ message: 'Необходима авторизация' });
     // return handleAuthError(err);
-    const error = new Error('Необходима авторизация');
+
+    /* const error = new Error('Необходима авторизация');
     error.statusCode = 403;
 
-    next(err);
+    next(err); */
   }
 
   req.user = payload; // записываем пейлоуд в объект запроса

@@ -18,6 +18,16 @@ const {
   login,
 } = require('./controllers/users');
 
+const validator = require('validator');
+// валидация ссылок
+const method = (value) => {
+  let result = validator.isURL(value);
+  if (result) {
+    return value;
+  }
+  throw new Error('URL validation err');
+};
+
 const auth = require('./middlewares/auth');
 
 // подключаемся к серверу mongo. Имя бд  - mestodb.
@@ -45,8 +55,8 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
-    avatar: Joi.string().required(),
-    email: Joi.string().required(),
+    avatar: Joi.string().required().custom(method),
+    email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
 }), createUser);
@@ -54,8 +64,8 @@ app.post('/signup', celebrate({
 // роут для логина
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required(),
-    paswword: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
   }),
 }), login);
 
@@ -68,6 +78,9 @@ app.use('/', userRouter); //  localhost:PORT/ + userRouter
 app.use('/', cardRouter); //  localhost:PORT/ + cardRouter
 app.use((req, res) => {
   res.status(404).send({ message: 'Ресурс не найден' });
+  /* const notFound = new Error({ message: 'Ресурс не найден' });
+  notFound.statusCode = 404;
+  next(notFound); */
 });
 // либо
 //  The 404 Route (ALWAYS Keep this as the last route)
@@ -80,7 +93,7 @@ app.use(errors());
 
 // здесь обрабатываем все ошибки централизованно
 
-app.use((err, req, res, next) => {
+/* app.use((err, req, res, next) => {
   // console.log(err);
 
   const statusCode = err.statusCode || 500;
@@ -88,7 +101,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).send({ message: message });
 
   next();
-});
+}); */
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
