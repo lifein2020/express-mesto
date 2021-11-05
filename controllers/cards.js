@@ -52,6 +52,9 @@ module.exports.deleteCard = (req, res) => {
       throw notFound;
     })
     .then((card) => {
+      if (card.owner.toString() !== req.user._id.toString()) {
+        res.status(401).send({ message: 'Необходима авторизация' });
+      }
       res.status(200).send({ card });
     })
     .catch((err) => {

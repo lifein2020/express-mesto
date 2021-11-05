@@ -1,10 +1,25 @@
 const bcrypt = require('bcryptjs'); // импортируем bcrypt
-const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken Для создания токенов
+const jwt = require('jsonwebtoken');// импортируем модуль jsonwebtoken Для создания токенов
 const User = require('../models/user'); //  импортируем модель
 
 const JWT_SECRET = 'the-world-is-not-enought';
 
 //  Создание документов
+
+// возвращает информацию о текущем пользователе
+const getUserMe = (req, res) => {
+  const { payload } = req.user;
+  // console.log(req.user);
+  return User.findOne({ payload })
+    .then((user) => {
+      console.log(user);
+      return res.status(200).send({ data: user });
+    })
+    .catch(() => {
+      res.status(500).send({ message: 'Произошла ошибка' });
+      // next(err);
+    });
+};
 
 //  возвращает всех пользователей
 const getUsers = (req, res) => {
@@ -54,11 +69,11 @@ const createUser = (req, res) => {
     .then((user) => {
       if (user) {
         return res.status(409).send({ message: 'Пользователь с таким email уже существует' });
-        /* const MongoServerError = new Error({ message: 'Пользователь с таким email уже существует' });
-        MongoServerError.statusCode = 409;
-        MongoServerError.code = 11000;
-        MongoServerError.name = 'MongoServerError';
-        throw MongoServerError; */
+        // const MongoServerError = new Error({ message: 'Пользова с таким email уже существует' });
+        // MongoServerError.statusCode = 409;
+        // MongoServerError.code = 11000;
+        // MongoServerError.name = 'MongoServerError';
+        // throw MongoServerError;
       }
       return bcrypt.hash(req.body.password, 10); // хешируем пароль
     })
@@ -76,7 +91,6 @@ const createUser = (req, res) => {
       email,
       _id,
     }) => {
-      //  console.log('Пользователь создан');
       res.status(201).send({
         data: {
           name,
@@ -196,12 +210,16 @@ const updateAvatar = (req, res) => {
 // аутентификация
 const login = (req, res) => {
   const { email, password } = req.body;
-
   return User.findUserByCredentials(email, password)
     .then((user) => {
       // аутентификация успешна! пользователь в переменной user
+      // console.log(user);
       // создадим токен
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expresIn: '7d' }); // методу sign передали пейлоуд токена, секретный ключ подписи, объек опций - время действия токена
+      const token = jwt.sign(
+        { _id: user._id },
+        JWT_SECRET,
+        { expiresIn: '7d' },
+      );
 
       // вернём токен
       res.send({ token }); // или заголовок Set-Cookie
@@ -217,50 +235,6 @@ const login = (req, res) => {
         return res.status(403).send({ message: 'Такого пользователя не существует' });
         /* const notFoundUser = new Error('Такого пользователя не существует');
         next(notFoundUser); */
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
-      // next(err);
-    });
-};
-
-const getUserMe = (req, res) => {
-  const { email, password } = req.body;
-  // хеш пароля пользователя будет возвращаться из базы - select
-  return User.findOne({ email }).select('+password')
-    .then((user) => {
-      if (!user) {
-        /* const notFoundUser = new Error('Такого пользователя не существует');
-        notFoundUser.statusCode = 403;
-        throw notFoundUser; */
-        return res.status(403).send({ message: 'Такого пользователя не существует' });
-      }
-      bcrypt.compare(password, user.password, (error, isValidPassword) => {
-        if (!isValidPassword) {
-          /* const authError = new Error('Почта или пароль не верные');
-          authError.statusCode = 401;
-          throw authError; */
-          return res.status(401).send({ message: 'Почта или пароль не верные' });
-        }
-        return res.status(200).send({ data: user });
-      });
-    })
-    .catch((err) => {
-      /* if (err.statusCode === 403) {
-        next(err); // notFoundUser
-      }
-      if (err.statusCode === 401) {
-        next(err); // authError
-      } */
-      if (err.statusCode === 404) {
-        return res.status(404).send({ message: err.message });
-        /* const notFound = new Error({ message: err.message });
-        next(notFound); */
-      }
-      if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
-        /* const badRequest = new Error('Переданы некорректные данные');
-        badRequest.statusCode = 400;
-        next(badRequest); */
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
       // next(err);

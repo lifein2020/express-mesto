@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
     default: url,
     validate: {
       validator: function validateAvatar(v) {
-        const avatarUrl = /http(s)?:\/\/(www.)?[\w\-.]*\.\w{1,}\/?[\w\-._~:\/?#\[\]@!$&'()*+,;=]*#?/g; // /http(s)?:(\/){2}(w{3}\.)?.+\.ru.*(#)?/;
+        const avatarUrl = /http(s)?:\/\/(www.)?[\w\-.]*\.\w{1,}\/?[\w\-._~:/?#[\]@!$&'()*+,;=]*#?/g; // /http(s)?:(\/){2}(w{3}\.)?.+\.ru.*(#)?/;
         return avatarUrl.test(v);
       },
       message: (props) => `${props.value} is not a valid link!`,
@@ -51,18 +51,20 @@ const userSchema = new mongoose.Schema({
 // Код проверки почты и пароля является частью схемы User
 userSchema.statics.findUserByCredentials = function authenticateUser(email, password) {
   // попытаемся найти пользователя по почте
-  return this.findOne({ email }) // this — это модель User
+  return this.findOne({ email }).select('+password') // this — это модель User
     .then((user) => {
       if (!user) {
         return Promise.reject(new Error('Неправильные почта и пароль'));
       }
-
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
             return Promise.reject(new Error('Неправильные почта и паролль'));
           }
 
+          // console.log(user);
+
+          // console.log(matched);
           return user; // теперь user доступен
         });
     });

@@ -14,33 +14,26 @@ const method = (value) => {
 const {
   getUsers,
   getUserProfile,
-  // createUser,
   updateUser,
   updateAvatar,
   getUserMe,
 } = require('../controllers/users');
 
+// возвращает информацию о текущем пользователе
+router.get('/users/me', getUserMe);
+
 //  возвращает всех пользователей
 router.get('/users', getUsers);
 
-//  router.get('/users', () => {console.log('Сделано!')})
-
-//  возвращает пользователя по _id
+// возвращает пользователя по _id
 router.get('/users/:userId', celebrate({
   params: Joi.object().keys({
     userId: Joi.string().hex().length(24).required(),
   }),
 }), getUserProfile);
 
-//  создаёт пользователя
-// router.post('/users', createUser);
-
-// возвращает информацию о текущем пользователе
-router.get('/users/me', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().email().required(),
-  }),
-}), getUserMe);
+// console.log(auth);
+// console.log(payload);
 
 // обновляет профиль
 router.patch('/users/me', celebrate({
@@ -50,10 +43,10 @@ router.patch('/users/me', celebrate({
   }),
 }), updateUser); //   :userId
 
-//  обновляет аватар
+// обновляет аватар
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().custom(method),
+    avatar: Joi.string().required().custom(method), // Joi.string().required().pattern(URL_REGEX)
   }),
 }), updateAvatar); //  :userId
 

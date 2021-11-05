@@ -9,25 +9,21 @@ const handleAuthError = (res) => {
   throw (loginError); */
 };
 
-const extractBearerToken = (header) => {
-  header.replace('Bearer ', '');
-};
-
 module.exports = (req, res, next) => {
   // достаём авторизационный заголовок
   const { authorization } = req.headers;
 
   // убеждаемся, что он есть или начинается с Bearer
-  if (!authorization || !authorization.startWith('Bearer ')) {
+  if (!authorization || !authorization.startsWith('Bearer ')) {
     // return res.status(401).send({ message: 'Необходима авторизация' });
+    // console.log(authorization);
     return handleAuthError(res);
   }
   // если токен на месте, извлечём его
-  // const token = authorization.replace('Bearer ', '');
-  const token = extractBearerToken(authorization);
+  // console.log(authorization);
+  const token = authorization.replace('Bearer ', '');
   let payload;
   try {
-    // верифицируем токен
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     return res.status(401).send({ message: 'Необходима авторизация' });
@@ -38,10 +34,11 @@ module.exports = (req, res, next) => {
 
     next(err); */
   }
+  // console.log(token);
+  // console.log(payload);
 
   req.user = payload; // записываем пейлоуд в объект запроса
+  // console.log(req.user);
 
   next(); // пропускаем запрос дальше
 };
-
-// module.exports = { Authorized };
