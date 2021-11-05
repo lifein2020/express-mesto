@@ -10,6 +10,7 @@ const { PORT = 3000 } = process.env;
 // Создаем приложение
 const app = express();
 
+const validator = require('validator');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
@@ -18,10 +19,9 @@ const {
   login,
 } = require('./controllers/users');
 
-const validator = require('validator');
 // валидация ссылок
 const method = (value) => {
-  let result = validator.isURL(value);
+  const result = validator.isURL(value);
   if (result) {
     return value;
   }
@@ -33,12 +33,7 @@ const auth = require('./middlewares/auth');
 // подключаемся к серверу mongo. Имя бд  - mestodb.
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
-  // useCreateIndex: true,
-  // useFindAndModify: false
-}) /*  , err => {
-  if(err) throw err;
-  console.log('Connected to MongoDb!')
-}) */
+})
   .then(() => { console.log('Connected to MongoDb!'); })
   .catch((err) => {
     console.log('No connection. Error:', err);
@@ -46,9 +41,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 // парсер для обработки тела запроса в PUT
 app.use(express.json());
-//  deprecated
-/*  app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); */
 
 // роут для регистрации
 app.post('/signup', celebrate({
@@ -61,7 +53,7 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-// роут для логина
+// роут для аутентификации
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
@@ -69,9 +61,10 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-// app.use(Authorized); // все роуты ниже этой строки будут защищены
-
+// защита авторизацией всех роутов строками ниже
 app.use(auth);
+
+// console.log(auth);
 
 //  подключаем роуты
 app.use('/', userRouter); //  localhost:PORT/ + userRouter
