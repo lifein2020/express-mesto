@@ -49,17 +49,26 @@ const userSchema = new mongoose.Schema({
 });
 
 // Код проверки почты и пароля является частью схемы User
+// используется в контроллере login
 userSchema.statics.findUserByCredentials = function authenticateUser(email, password) {
   // попытаемся найти пользователя по почте
   return this.findOne({ email }).select('+password') // this — это модель User
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неправильные почта и пароль'));
+        const loginError = new Error('Неправильные почта и пароль'); // 'Неправильная почта'
+        loginError.statusCode = 401;
+        loginError.name = 'LoginError'; // см name в  терминале
+        loginError.code = 11000;
+        throw loginError;
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error('Неправильные почта и паролль'));
+            const loginError = new Error('Неправильные почта и пароль'); // 'Неправильный пароль'
+            loginError.statusCode = 401;
+            loginError.name = 'LoginError';
+            loginError.code = 11000;
+            throw loginError;
           }
           return user; // теперь user доступен
         });

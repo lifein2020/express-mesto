@@ -69,8 +69,10 @@ app.use(auth);
 //  подключаем роуты
 app.use('/', userRouter); //  localhost:PORT/ + userRouter
 app.use('/', cardRouter); //  localhost:PORT/ + cardRouter
+
+// ошибка роутеризации
 app.use((req, res, next) => {
-  const notFound = new Error({ message: 'Ресурс не найден' });
+  const notFound = new Error('Ресурс не найден');
   notFound.statusCode = 404;
   next(notFound);
 });
@@ -78,12 +80,11 @@ app.use((req, res, next) => {
 // обработчик ошибок celebrate
 app.use(errors());
 
-
 // здесь обрабатываем все ошибки централизованно
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || `Ошибка на стороне сервера, ${err}`;
-  res.status(statusCode).send({ message: message });
+  res.status(statusCode).send(message);
 
   next();
 });
