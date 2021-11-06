@@ -69,11 +69,11 @@ app.use(auth);
 //  подключаем роуты
 app.use('/', userRouter); //  localhost:PORT/ + userRouter
 app.use('/', cardRouter); //  localhost:PORT/ + cardRouter
-app.use((req, res) => {
-  res.status(404).send({ message: 'Ресурс не найден' });
-  /* const notFound = new Error({ message: 'Ресурс не найден' });
+app.use((req, res, next) => {
+  // res.status(404).send({ message: 'Ресурс не найден' });
+  const notFound = new Error({ message: 'Ресурс не найден' });
   notFound.statusCode = 404;
-  next(notFound); */
+  next(notFound);
 });
 // либо
 //  The 404 Route (ALWAYS Keep this as the last route)
@@ -84,9 +84,9 @@ app.use((req, res) => {
 // обработчик ошибок celebrate
 app.use(errors());
 
-// здесь обрабатываем все ошибки централизованно
 
-/* app.use((err, req, res, next) => {
+// здесь обрабатываем все ошибки централизованно
+app.use((err, req, res, next) => {
   // console.log(err);
 
   const statusCode = err.statusCode || 500;
@@ -94,7 +94,7 @@ app.use(errors());
   res.status(statusCode).send({ message: message });
 
   next();
-}); */
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

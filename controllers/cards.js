@@ -2,19 +2,19 @@
 const Card = require('../models/card');
 
 //  возвращает все карточки
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       res.status(200).send({ data: cards });
     })
-    .catch(() => {
-      res.status(500).send({ message: 'Произошла ошибка' });
-      // next(err);
+    .catch((err) => {
+      // res.status(500).send({ message: 'Произошла ошибка' });
+      next(err);
     });
 };
 
 //  создаёт карточку
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   //  console.log(req.user._id);
   const ownerId = req.user._id;
   const { name, link } = req.body; // получим из объекта запроса имя и описание пользователя
@@ -25,18 +25,18 @@ module.exports.createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
-        /* const badRequest = new Error('Переданы некорректные данные');
+        // return res.status(400).send({ message: 'Переданы некорректные данные' });
+        const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
-        next(badRequest); */
+        next(badRequest);
       }
-      return res.status(500).send({ message: 'Произошла ошибка', err: err.name });
-      // next(err);
+      // return res.status(500).send({ message: 'Произошла ошибка', err: err.name });
+      next(err);
     });
 };
 
 //  удаляет карточку по идентификатору
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   return Card.findByIdAndRemove(cardId)
     /*  .then((card) => {
@@ -53,29 +53,34 @@ module.exports.deleteCard = (req, res) => {
     })
     .then((card) => {
       if (card.owner.toString() !== req.user._id.toString()) {
-        res.status(401).send({ message: 'Необходима авторизация' });
+        // res.status(403).send({ message: 'Попытка удалить чужую карточку' });
+        const NotAuthError = new Error('Попытка удалить чужую карточку');
+        NotAuthError.statusCode = 403;
+        throw NotAuthError;
       }
       res.status(200).send({ card });
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        return res.status(404).send({ message: err.message });
-        /* const notFound = new Error({ message: err.message });
-        next(err); */
+        // return res.status(404).send({ message: err.message });
+        next(err);
+      }
+      if (err.statusCode === 403) {
+        next(err);
       }
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
-        /* const badRequest = new Error('Переданы некорректные данные');
+        // return res.status(400).send({ message: 'Переданы некорректные данные' });
+        const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
-        next(badRequest); */
+        next(badRequest);
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
-      // next(err);
+      // return res.status(500).send({ message: 'Произошла ошибка' });
+      next(err);
     });
 };
 
 //  поставить лайк карточке
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   const { cardId } = req.params;
   //  console.log('Set like to card. ', ' User id -> ', req.user._id, ' Card id -> ', cardId);
   return Card.findByIdAndUpdate(
@@ -91,9 +96,9 @@ module.exports.likeCard = (req, res) => {
       return res.status(200).send({ card })
     })  */
     .orFail(() => {
-      const notFound = new Error('Ресурс не найден');
-      notFound.statusCode = 404;
-      throw notFound;
+      const err = new Error('Ресурс не найден');
+      err.statusCode = 404;
+      throw err;
     })
     .then((card) => {
       //  console.log('Лайк поставлен');
@@ -101,22 +106,22 @@ module.exports.likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        res.status(404).send({ message: err.message });
-        // next(err);
+        // res.status(404).send({ message: err.message });
+        next(err);
       }
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
-        /* const badRequest = new Error('Переданы некорректные данные');
+        // res.status(400).send({ message: 'Переданы некорректные данные' });
+        const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
-        next(badRequest); */
+        next(badRequest);
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
-      // next(err);
+      // return res.status(500).send({ message: 'Произошла ошибка' });
+      next(err);
     });
 };
 
 //  убрать лайк с карточки
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
   //  console.log('Delete like of card. ', ' User id -> ', req.user._id, ' Card id -> ', cardId);
   return Card.findByIdAndUpdate(
@@ -132,9 +137,9 @@ module.exports.dislikeCard = (req, res) => {
       return res.status(200).send({ card });
     })  */
     .orFail(() => {
-      const notFound = new Error('Ресурс не найден');
-      notFound.statusCode = 404;
-      throw notFound;
+      const err = new Error('Ресурс не найден');
+      err.statusCode = 404;
+      throw err;
     })
     .then((card) => {
       // console.log('Лайк удален');
@@ -142,16 +147,16 @@ module.exports.dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        return res.status(404).send({ message: err.message });
-        // next(err);
+        // return res.status(404).send({ message: err.message });
+        next(err);
       }
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
-        /* const badRequest = new Error('Переданы некорректные данные');
+        // return res.status(400).send({ message: 'Переданы некорректные данные' });
+        const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
-        next(badRequest); */
+        next(badRequest);
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
-      // next(err);
+      // return res.status(500).send({ message: 'Произошла ошибка' });
+      next(err);
     });
 };
