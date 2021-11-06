@@ -187,14 +187,9 @@ const login = (req, res, next) => {
       res.send({ token }); // или заголовок Set-Cookie
     })
     .catch((err) => {
-      // ошибка аутентификации
-      if (err.statusCode === 401) {
-        const loginError = new Error('Передан неверный логин или пароль');
-        next(loginError);
-      }
-      if (err.statusCode === 403) {
-        const notFoundUser = new Error('Такого пользователя не существует');
-        next(notFoundUser);
+      // ошибка приодит из findUserByCredentials. См models - user.js - метод
+      if (err.name === 'LoginError' && err.code === 11000) {
+        next(err);
       }
       next(err);
     });

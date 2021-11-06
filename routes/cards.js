@@ -4,7 +4,7 @@ const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 // валидация ссылок
 const method = (value) => {
-  let result = validator.isURL(value);
+  const result = validator.isURL(value);
   if (result) {
     return value;
   }
