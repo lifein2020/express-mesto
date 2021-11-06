@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: false,
-    minLength: 2, // [2, 'Must be at least 2, got {VALUE}'], // минимальная длина имени — 2 символа
+    minLength: 2, // минимальная длина имени — 2 символа
     maxLength: 30, // а максимальная — 30 символов
     default: 'Жак-Ив Кусто',
   },
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
     default: url,
     validate: {
       validator: function validateAvatar(v) {
-        const avatarUrl = /http(s)?:\/\/(www.)?[\w\-.]*\.\w{1,}\/?[\w\-._~:/?#[\]@!$&'()*+,;=]*#?/g; // /http(s)?:(\/){2}(w{3}\.)?.+\.ru.*(#)?/;
+        const avatarUrl = /http(s)?:\/\/(www.)?[\w\-.]*\.\w{1,}\/?[\w\-._~:/?#[\]@!$&'()*+,;=]*#?/g;
         return avatarUrl.test(v);
       },
       message: (props) => `${props.value} is not a valid link!`,
@@ -61,10 +61,6 @@ userSchema.statics.findUserByCredentials = function authenticateUser(email, pass
           if (!matched) {
             return Promise.reject(new Error('Неправильные почта и паролль'));
           }
-
-          // console.log(user);
-
-          // console.log(matched);
           return user; // теперь user доступен
         });
     });

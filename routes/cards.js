@@ -33,21 +33,21 @@ router.post('/cards', celebrate({
 //  удаляет карточку по идентификатору
 router.delete('/cards/:cardId', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().hex().length(24).required(), // Joi.string().alphanum().length(24),
+    cardId: Joi.string().hex().length(24).required(),
   }),
 }), deleteCard);
 
 //  поставить лайк карточке
 router.put('/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().hex().length(24).required(), // Joi.string().alphanum().length(24),
+    cardId: Joi.string().hex().length(24).required(),
   }),
 }), likeCard);
 
 //  убрать лайк с карточки
 router.delete('/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().hex().length(24).required(), // Joi.string().alphanum().length(24),
+    cardId: Joi.string().hex().length(24).required(),
   }),
 }), dislikeCard);
 

@@ -8,29 +8,24 @@ module.exports.getCards = (req, res, next) => {
       res.status(200).send({ data: cards });
     })
     .catch((err) => {
-      // res.status(500).send({ message: 'Произошла ошибка' });
       next(err);
     });
 };
 
 //  создаёт карточку
 module.exports.createCard = (req, res, next) => {
-  //  console.log(req.user._id);
   const ownerId = req.user._id;
   const { name, link } = req.body; // получим из объекта запроса имя и описание пользователя
   return Card.create({ name, link, owner: ownerId }) // создадим документ на основе пришедших данных
     .then((card) => {
-      //  console.log('Карточка создана');
       res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        // return res.status(400).send({ message: 'Переданы некорректные данные' });
         const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
         next(badRequest);
       }
-      // return res.status(500).send({ message: 'Произошла ошибка', err: err.name });
       next(err);
     });
 };
@@ -39,13 +34,6 @@ module.exports.createCard = (req, res, next) => {
 module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   return Card.findByIdAndRemove(cardId)
-    /*  .then((card) => {
-      if (card) {
-        console.log('Карточка удалена');
-        return res.status(200).send({ card });
-      }
-      return res.status(404).send({ message: 'Ресурс не найден' });
-    })  либо:  */
     .orFail(() => {
       const notFound = new Error('Ресурс не найден');
       notFound.statusCode = 404;
@@ -53,7 +41,6 @@ module.exports.deleteCard = (req, res, next) => {
     })
     .then((card) => {
       if (card.owner.toString() !== req.user._id.toString()) {
-        // res.status(403).send({ message: 'Попытка удалить чужую карточку' });
         const NotAuthError = new Error('Попытка удалить чужую карточку');
         NotAuthError.statusCode = 403;
         throw NotAuthError;
@@ -62,19 +49,16 @@ module.exports.deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        // return res.status(404).send({ message: err.message });
         next(err);
       }
       if (err.statusCode === 403) {
         next(err);
       }
       if (err.name === 'CastError') {
-        // return res.status(400).send({ message: 'Переданы некорректные данные' });
         const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
         next(badRequest);
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
       next(err);
     });
 };
@@ -82,40 +66,28 @@ module.exports.deleteCard = (req, res, next) => {
 //  поставить лайк карточке
 module.exports.likeCard = (req, res, next) => {
   const { cardId } = req.params;
-  //  console.log('Set like to card. ', ' User id -> ', req.user._id, ' Card id -> ', cardId);
   return Card.findByIdAndUpdate(
     { _id: cardId }, //  req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    /*  .then((card) => {
-      if (!card) {
-        return res.status(404).send({ message: 'Ресурс не найден' })
-      }
-      console.log('Лайк поставлен');
-      return res.status(200).send({ card })
-    })  */
     .orFail(() => {
       const err = new Error('Ресурс не найден');
       err.statusCode = 404;
       throw err;
     })
     .then((card) => {
-      //  console.log('Лайк поставлен');
       res.status(200).send({ card });
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        // res.status(404).send({ message: err.message });
         next(err);
       }
       if (err.name === 'CastError') {
-        // res.status(400).send({ message: 'Переданы некорректные данные' });
         const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
         next(badRequest);
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
       next(err);
     });
 };
@@ -123,40 +95,28 @@ module.exports.likeCard = (req, res, next) => {
 //  убрать лайк с карточки
 module.exports.dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
-  //  console.log('Delete like of card. ', ' User id -> ', req.user._id, ' Card id -> ', cardId);
   return Card.findByIdAndUpdate(
     cardId, //  req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    /*  .then((card) => {
-      if (!card) {
-        return res.status(404).send({ message: 'Ресурс не найден' });
-      }
-      console.log('Лайк удален');
-      return res.status(200).send({ card });
-    })  */
     .orFail(() => {
       const err = new Error('Ресурс не найден');
       err.statusCode = 404;
       throw err;
     })
     .then((card) => {
-      // console.log('Лайк удален');
       res.status(200).send({ card });
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        // return res.status(404).send({ message: err.message });
         next(err);
       }
       if (err.name === 'CastError') {
-        // return res.status(400).send({ message: 'Переданы некорректные данные' });
         const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
         next(badRequest);
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
       next(err);
     });
 };

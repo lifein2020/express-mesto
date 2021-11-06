@@ -32,9 +32,6 @@ router.get('/users/:userId', celebrate({
   }),
 }), getUserProfile);
 
-// console.log(auth);
-// console.log(payload);
-
 // обновляет профиль
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({

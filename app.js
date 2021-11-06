@@ -70,16 +70,10 @@ app.use(auth);
 app.use('/', userRouter); //  localhost:PORT/ + userRouter
 app.use('/', cardRouter); //  localhost:PORT/ + cardRouter
 app.use((req, res, next) => {
-  // res.status(404).send({ message: 'Ресурс не найден' });
   const notFound = new Error({ message: 'Ресурс не найден' });
   notFound.statusCode = 404;
   next(notFound);
 });
-// либо
-//  The 404 Route (ALWAYS Keep this as the last route)
-/*  app.get('*', (req, res) => {
-  res.status(404).send('Ресурс не найден');
-}); */
 
 // обработчик ошибок celebrate
 app.use(errors());
@@ -87,8 +81,6 @@ app.use(errors());
 
 // здесь обрабатываем все ошибки централизованно
 app.use((err, req, res, next) => {
-  // console.log(err);
-
   const statusCode = err.statusCode || 500;
   const message = err.message || `Ошибка на стороне сервера, ${err}`;
   res.status(statusCode).send({ message: message });

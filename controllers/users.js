@@ -15,7 +15,6 @@ const getUserMe = (req, res, next) => {
       res.status(200).send({ data: user });
     })
     .catch((err) => {
-      // res.status(500).send({ message: 'Произошла ошибка' });
       next(err);
     });
 };
@@ -27,7 +26,6 @@ const getUsers = (req, res, next) => {
       res.status(200).send({ data: users });
     })
     .catch((err) => {
-      // res.status(500).send({ message: 'Произошла ошибка' });
       next(err);
     });
 };
@@ -46,30 +44,23 @@ const getUserProfile = (req, res, next) => {
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        // return res.status(404).send({ message: err.message });
-        // const notFound = new Error({ message: err.message });
         next(err);
       }
       if (err.name === 'CastError') {
-        // return res.status(400).send({ message: 'Переданы некорректные данные' });
         const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
         next(badRequest);
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
-
       next(err);
     });
 };
 
 //  создаёт пользователя
 const createUser = (req, res, next) => {
-  // const { email, password } = req.body;
   User.findOne(({ email: req.body.email }))
     .then((user) => {
       if (user) {
-        // return res.status(409).send({ message: 'Пользователь с таким email уже существует' });
-        const MongoServerError = new Error('Пользователь с таким email уже существует'); // MongoServerError
+        const MongoServerError = new Error('Пользователь с таким email уже существует');
         MongoServerError.statusCode = 409;
         MongoServerError.code = 11000;
         MongoServerError.name = 'MongoServerError';
@@ -103,16 +94,13 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        // return res.status(400).send({ message: 'Переданы некорректные данные' });
         const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
         next(badRequest);
       }
       if (err.name === 'MongoServerError' && err.code === 11000) {
         next(err);
-        // return res.status(409).send({ message: 'Пользователь с таким email уже существует' });
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
       next(err);
     });
 };
@@ -121,7 +109,6 @@ const createUser = (req, res, next) => {
 const updateUser = (req, res, next) => {
   const { name, about } = req.body; // получим из объекта запроса имя и описание пользователя
   return User.findByIdAndUpdate(
-    //  req.params.userId,  //req.params.me
     req.user._id,
     { name, about },
     // Передаем объект опций чтобы передать в then  уже обновлённую запись:
@@ -136,24 +123,17 @@ const updateUser = (req, res, next) => {
       throw err;
     })
     .then((user) => {
-      /* вместо if (!user) {
-        return res.status(404).send({ message: 'Ресурс не найден' });
-      } */
-      //  console.log('Данные пользователя обновлены');
       res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        // return res.status(404).send({ message: err.message });
         next(err);
       }
       if (err.name === 'ValidationError') {
-        // return res.status(400).send({ message: 'Переданы некорректные данные' });
         const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
         next(badRequest);
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
       next(err);
     });
 };
@@ -175,26 +155,17 @@ const updateAvatar = (req, res, next) => {
       throw err;
     })
     .then((user) => {
-      /*  if (!user) {
-        return res.status(404).send({ message: 'Ресурс не найден' });
-      } */
-      //  console.log('Аватар пользователя обновлен');
       res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.statusCode === 404) {
-        // return res.status(404).send({ message: err.message });
         next(err);
-
-        // next(err);
       }
       if (err.name === 'ValidationError') {
-        // return res.status(400).send({ message: 'Переданы некорректные данные' });
         const badRequest = new Error('Переданы некорректные данные');
         badRequest.statusCode = 400;
         next(badRequest);
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
       next(err);
     });
 };
@@ -205,7 +176,6 @@ const login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       // аутентификация успешна! пользователь в переменной user
-      // console.log(user);
       // создадим токен
       const token = jwt.sign(
         { _id: user._id },
@@ -219,16 +189,13 @@ const login = (req, res, next) => {
     .catch((err) => {
       // ошибка аутентификации
       if (err.statusCode === 401) {
-        // return res.status(401).send({ message: 'Передан неверный логин или пароль' });
         const loginError = new Error('Передан неверный логин или пароль');
         next(loginError);
       }
       if (err.statusCode === 403) {
-        // return res.status(403).send({ message: 'Такого пользователя не существует' });
         const notFoundUser = new Error('Такого пользователя не существует');
         next(notFoundUser);
       }
-      // return res.status(500).send({ message: 'Произошла ошибка' });
       next(err);
     });
 };
