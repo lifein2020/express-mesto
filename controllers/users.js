@@ -2,7 +2,8 @@ const bcrypt = require('bcryptjs'); // импортируем bcrypt
 const jwt = require('jsonwebtoken');// импортируем модуль jsonwebtoken Для создания токенов
 const User = require('../models/user'); //  импортируем модель
 
-const JWT_SECRET = 'the-world-is-not-enought';
+// const JWT_SECRET = 'the-world-is-not-enought';
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 //  Создание документов
 
@@ -66,7 +67,7 @@ const createUser = (req, res, next) => {
         MongoServerError.name = 'MongoServerError';
         throw MongoServerError;
       }
-      return bcrypt.hash(req.body.password, 10); // хешируем пароль
+      return bcrypt.hash(req.body.password, 10); // хешируем пароль, 10 это соль
     })
     .then((hash) => User.create({
       name: req.body.name,
@@ -179,12 +180,23 @@ const login = (req, res, next) => {
       // создадим токен
       const token = jwt.sign(
         { _id: user._id },
-        JWT_SECRET,
+        // JWT_SECRET,
+        // NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        // process.env.NODE_ENV !== 'production' ? 'dev-secret' : process.env.JWT_SECRET
+        NODE_ENV !== 'production' ? JWT_SECRET : 'prod-secret',
         { expiresIn: '7d' },
       );
 
       // вернём токен в теле ответа
       res.send({ token }); // или заголовок Set-Cookie
+      // return res.status(200).send({ token });
+
+      /* res.cookie('userToken', token, {
+        maxAge: 360000,
+        httpOnly: true,
+        sameSite: true,
+      }).send({ _id: user._id });
+      */
     })
     .catch((err) => {
       // ошибка приодит из findUserByCredentials. См models - user.js - метод

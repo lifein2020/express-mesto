@@ -1,8 +1,15 @@
 // Подключаем express
 const express = require('express');
 const mongoose = require('mongoose');
+
+require('dotenv').config();
+// console.log(process.env.NODE_ENV);
+// console.log(process.env.JWT_SECRET);
+
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
+// const cookieParser = require('cookie-parser');
+// const cors = require('cors');
 
 //  Настроим порт, который должен слушать приложение
 const { PORT = 3000 } = process.env;
@@ -19,6 +26,11 @@ const {
   login,
 } = require('./controllers/users');
 
+const {
+  requestLogger,
+  errorLogger,
+} = require('./middlewares/logger');
+
 // валидация ссылок
 const method = (value) => {
   const result = validator.isURL(value);
@@ -29,6 +41,7 @@ const method = (value) => {
 };
 
 const auth = require('./middlewares/auth');
+const cors = require('./middlewares/cors');
 
 // подключаемся к серверу mongo. Имя бд  - mestodb.
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -41,6 +54,19 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 // парсер для обработки тела запроса в PUT
 app.use(express.json());
+
+// подключение политики безопасности CORS
+app.use(cors);
+
+// подключаем логгер запросов как мидлвэр до всех обработчиков роутов:
+app.use(requestLogger);
+
+//  краш-тест сервера
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 // роут для регистрации
 app.post('/signup', celebrate({
@@ -69,6 +95,9 @@ app.use(auth);
 //  подключаем роуты
 app.use('/', userRouter); //  localhost:PORT/ + userRouter
 app.use('/', cardRouter); //  localhost:PORT/ + cardRouter
+
+// подключаем логгер ошибок после обработчиков роутов и до обработчиков ошибок
+app.use(errorLogger);
 
 // ошибка роутеризации
 app.use((req, res, next) => {
